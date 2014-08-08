@@ -1,0 +1,26 @@
+## Interface: 50400
+## Version: 5.4.8.wowi:revision
+
+## Title: Broker: Instance Difficulty
+## Notes: Show the current instance difficulty on your DataBroker display.
+## Notes-deDE: Zeigt die aktuelle Instanzschwierigkeit auf der DataBroker-Auslage.
+## Notes-esES: Muestra la difficultad de estancia actual en tu barra DataBroker.
+## Notes-esMX: Muestra la difficultad de estancia actual en tu barra DataBroker.
+
+## Author: Phanx
+## X-Email: addons@phanx.net
+## X-Copyright: Copyright (c) 2014 Phanx.
+## X-License: All rights reserved. See the accompanying LICENSE file for details.
+## X-CompatibleLocales: deDE, enUS, esES, esMX, frFR, itIT, ptBR, koKR, ruRU, zhCN, zhTW
+## X-Localizations: deDE, enUS, esES, esMX, frFR, itIT, ptBR, ruRU, koKR, zhCN, zhTW
+## X-Website: http://www.wowinterface.com/downloads/info22729-BrokerInstanceDifficulty.html
+## X-Curse-Project-Name: broker-instancedifficulty
+## X-WoWI-ID: 22729
+
+## OptionalDependencies: LibDataBroker-1.1
+
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+
+Addon.lua
