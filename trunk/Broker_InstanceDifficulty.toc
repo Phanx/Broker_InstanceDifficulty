@@ -1,9 +1,9 @@
-## Interface: 50400
-## Version: 5.4.8.wowi:revision
+## Interface: 60000
+## Version: 6.0.2.wowi:revision
 
 ## Title: Broker: Instance Difficulty
 ## Notes: Show the current instance difficulty on your DataBroker display.
-## Notes-deDE: Zeigt die aktuelle Instanzschwierigkeit auf der DataBroker-Auslage.
+## Notes-deDE: Zeigt die aktuelle Instanzschwierigkeit auf der DataBroker-Anzeige.
 ## Notes-esES: Muestra la difficultad de estancia actual en tu barra DataBroker.
 ## Notes-esMX: Muestra la difficultad de estancia actual en tu barra DataBroker.
 
