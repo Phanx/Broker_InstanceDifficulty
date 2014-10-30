@@ -130,8 +130,9 @@ f:SetScript("OnEvent", function(self, event, ...)
 			obj.text = format("|cff%02x%02x%02x%s|r", color.r * 255, color.g * 255, color.b * 255,
 				difficultyText[difficulty] or NORMAL)
 		else
-			obj.text = format("|cff%02x%02x%02x%s%d|r", color.r * 255, color.g * 255, color.b * 255,
-				difficultyText[difficulty] or NORMAL, maxPlayers)
+			obj.text = format("|cff%02x%02x%02x%d%s|r", color.r * 255, color.g * 255, color.b * 255,
+				maxPlayers,
+				difficultyText[difficulty] or NORMAL)
 		end
 	else
 		obj.text = DEFAULT_TEXT
