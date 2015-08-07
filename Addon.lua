@@ -89,6 +89,8 @@ local difficultyText = {
 	[15] = HEROIC,
 	[16] = MYTHIC,
 	[17] = LFR,
+	[23] = MYTHIC, -- Dungeon
+	[34] = TIMEWALKER,
 }
 
 local hideCount = {

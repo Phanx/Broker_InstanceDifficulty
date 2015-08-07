@@ -1,3 +1,7 @@
+### Version 6.2.0.5
+
+* Added mythic and timewalker dungeon difficulties
+
 ### Version 6.1.0.4
 
 * Updated for WoW 6.1
