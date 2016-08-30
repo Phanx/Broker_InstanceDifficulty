@@ -1,7 +1,7 @@
 --[[--------------------------------------------------------------------
 	Broker Instance Difficulty
 	Shows the current instance difficulty on your DataBroker display.
-	Copyright (c) 2014-2015 Phanx <addon@phanx.net>. All rights reserved.
+	Copyright (c) 2014-2016 Phanx <addon@phanx.net>. All rights reserved.
 	http://www.wowinterface.com/downloads/info22729-InstanceDifficulty
 	http://www.curse.com/addons/wow/broker-instance-difficulty
 	https://github.com/Phanx/Broker_InstanceDifficulty
@@ -14,34 +14,34 @@ local DEFAULT_TEXT = ""
 ------------------------------------------------------------------------
 
 local DIFFICULTY = "Difficulty"
-local LFR, NORMAL, HEROIC, MYTHIC, CHALLENGE = "LFR", "N", "H", "M", "C"
+local LFR, NORMAL, HEROIC, MYTHIC, CHALLENGE, TIMEWALK = "LFR", "N", "H", "M", "C", "TW"
 if GetLocale() == "deDE" then
 	DIFFICULTY = "Schwierigkeit"
-	LFR = "SNS"
+	LFR, TIMEWALK = "SNS", "ZW"
 elseif GetLocale():match("^es") then
 	DIFFICULTY = "Dificultad"
-	LFR, CHALLENGE = "BdB", "D"
+	LFR, CHALLENGE, TIMEWALK = "BdB", "D", "PT"
 elseif GetLocale() == "frFR" then
 	DIFFICULTY = "Difficulté"
-	LFR, FLEXIBLE, CHALLENGE = "RDR", "D"
+	LFR, FLEXIBLE, CHALLENGE, TIMEWALK = "RDR", "D", "D", "MT"
 elseif GetLocale() == "itIT" then
 	DIFFICULTY = "Difficoltà"
-	LFR, HEROIC, CHALLENGE = "RDI", "E", "S"
+	LFR, HEROIC, CHALLENGE, TIMEWALK = "RDI", "E", "S", "VT"
 elseif GetLocale() == "ptBR" then
 	DIFFICULTY = "Dificuldade"
-	LFR, CHALLENGE = "LdR", "D"
+	LFR, CHALLENGE, TIMEWALK = "LdR", "D", "CT"
 elseif GetLocale() == "ruRU" then
 	DIFFICULTY = "Сложность"
-	LFR, NORMAL, HEROIC, MYTHIC, CHALLENGE = "Пр", "О", "Г", "Э", "И"
+	LFR, NORMAL, HEROIC, MYTHIC, CHALLENGE, TIMEWALK = "Пр", "О", "Г", "Э", "И", "ПВ"
 elseif GetLocale() == "koKR" then
 	DIFFICULTY = "난이도"
-	LFR, NORMAL, HEROIC, MYTHIC, CHALLENGE = "공찾", "일반", "영웅", "신화", "도전" -- needs check
+	LFR, NORMAL, HEROIC, MYTHIC, CHALLENGE, TIMEWALK = "공찾", "일반", "영웅", "신화", "도전", "시간여행" -- needs check
 elseif GetLocale() == "zhCN" then
 	DIFFICULTY = "难度"
-	LFR, NORMAL, HEROIC, MYTHIC, CHALLENGE = "查找", "普通", "英雄", "史诗", "挑战" -- needs check
+	LFR, NORMAL, HEROIC, MYTHIC, CHALLENGE, TIMEWALK = "查找", "普通", "英雄", "史诗", "挑战", "时空漫游" -- needs check
 elseif GetLocale() == "zhTW" then
 	DIFFICULTY = "難度"
-	LFR, NORMAL, HEROIC, MYTHIC, CHALLENGE = "搜尋", "普通", "英雄", "傳奇", "挑戰" -- needs check
+	LFR, NORMAL, HEROIC, MYTHIC, CHALLENGE, TIMEWALK = "搜尋", "普通", "英雄", "傳奇", "挑戰", "時光漫遊" -- needs check
 end
 
 ------------------------------------------------------------------------
@@ -80,7 +80,8 @@ local obj = LibStub("LibDataBroker-1.1"):NewDataObject("InstanceDifficulty", {
 })
 
 local difficultyText = {
-	[2]  = HEROIC,
+	-- see http://wow.gamepedia.com/DifficultyID
+	[2]  = HEROIC, -- Heroic Dungeon
 	[5]  = HEROIC, -- 10 Player (Heroic)
 	[6]  = HEROIC, -- 25 Player (Heroic)
 	[7]  = LFR,
@@ -89,8 +90,8 @@ local difficultyText = {
 	[15] = HEROIC,
 	[16] = MYTHIC,
 	[17] = LFR,
-	[23] = MYTHIC, -- Dungeon
-	[34] = TIMEWALKER,
+	[23] = MYTHIC, -- Mythic Dungeon
+	[24] = TIMEWALK,
 }
 
 local hideCount = {
@@ -98,17 +99,6 @@ local hideCount = {
 	[14] = true, -- new Normal
 	[15] = true, -- new Heroic
 	[17] = true, -- new LFR
-}
-
-local garrisonMaps = {
-	[1152] = true, -- FW Horde Garrison Level 1
-	[1330] = true, -- FW Horde Garrison Level 2
-	[1153] = true, -- FW Horde Garrison Level 3
-	[1154] = true, -- FW Horde Garrison Level 4
-	[1158] = true, -- SMV Alliance Garrison Level 1
-	[1331] = true, -- SMV Alliance Garrison Level 2
-	[1159] = true, -- SMV Alliance Garrison Level 3
-	[1160] = true, -- SMV Alliance Garrison Level 4
 }
 
 local f = CreateFrame("Frame")
@@ -126,33 +116,36 @@ f:SetScript("OnEvent", function(self, event, ...)
 		RequestGuildPartyState()
 	end
 
-	local _, instanceType, difficulty, _, maxPlayers, _, _, instanceMapID = GetInstanceInfo()
+	local _, instanceType, difficulty, _, maxPlayers = GetInstanceInfo()
 
-	if garrisonMaps[instanceMapID] then
-		-- garrison, go away
-		instanceType = "none"
+	if instanceType == "none" or difficulty == 0 or maxPlayers == 0
+	or C_Garrison.IsOnGarrisonMap() or C_Garrison.IsOnShipyardMap() then
+		obj.text = DEFAULT_TEXT
+		return
 	end
 
 	local color
 	if isGuildGroup then
 		color = ChatTypeInfo["GUILD"]
+	elseif instanceType == "pvp" then
+		color = ChatTypeInfo["BG_SYSTEM_" .. strupper(UnitFactionGroup("player") or "NEUTRAL")]
 	elseif instanceType == "scenario" then
 		color = ChatTypeInfo["INSTANCE_CHAT"]
 	else
 		color = ChatTypeInfo[strupper(instanceType)] -- matches: party, raid | won't match: none, pvp, scenario
 	end
 
-	if color and maxPlayers > 0 then
-		if hideCount[difficulty] then
-			-- Flexible raid size, don't show max count
-			obj.text = format("|cff%02x%02x%02x%s|r", color.r * 255, color.g * 255, color.b * 255,
-				difficultyText[difficulty] or NORMAL)
-		else
-			obj.text = format("|cff%02x%02x%02x%d%s|r", color.r * 255, color.g * 255, color.b * 255,
-				maxPlayers,
-				difficultyText[difficulty] or NORMAL)
-		end
+	if instanceType == "pvp" then
+		-- Battleground, don't show difficulty
+		obj.text = format("|cff%02x%02x%02x%d|r", color.r * 255, color.g * 255, color.b * 255,
+			maxPlayers)
+	elseif hideCount[difficulty] then
+		-- Flexible raid size, don't show max count
+		obj.text = format("|cff%02x%02x%02x%s|r", color.r * 255, color.g * 255, color.b * 255,
+			difficultyText[difficulty] or NORMAL)
 	else
-		obj.text = DEFAULT_TEXT
+		obj.text = format("|cff%02x%02x%02x%d%s|r", color.r * 255, color.g * 255, color.b * 255,
+			maxPlayers,
+			difficultyText[difficulty] or NORMAL)
 	end
 end)
